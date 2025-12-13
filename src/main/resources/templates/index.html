@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UEP Lost & Found Hub</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link th:href="@{/static/css/style.css}" rel="stylesheet">
+</head>
+<body>
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm">
+    <div class="container">
+        <a class="navbar-brand" href="/">
+            <i class="fas fa-search-location text-primary"></i>
+            <span class="fw-bold">UEP Lost & Found Hub</span>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link active" href="/">Home</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/lost-items}">Lost Items</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/found-items}">Found Items</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" th:href="@{/statistics}">Statistics</a>
+                </li>
+            </ul>
+            <div class="d-flex gap-2">
+                <a th:href="@{/login}" class="btn btn-outline-primary">Login</a>
+                <a th:href="@{/register}" class="btn btn-primary">Register</a>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<!-- Hero Section -->
+<section class="hero-section bg-light py-5">
+    <div class="container text-center">
+        <h1 class="display-5 fw-bold mb-3">UEP Lost and Found Hub</h1>
+        <p class="lead mb-4">Reuniting lost items with their owners, one search at a time</p>
+
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="input-group mb-3 shadow-sm rounded-pill overflow-hidden">
+                    <input type="text" class="form-control border-0 py-3"
+                           placeholder="Search for items, categories, or descriptions...">
+                    <button class="btn btn-primary px-4" type="button">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                </div>
+
+                <div class="d-flex flex-wrap justify-content-center gap-2">
+                    <a href="#" class="btn btn-outline-primary rounded-pill px-3">Items Lost</a>
+                    <a href="#" class="btn btn-outline-primary rounded-pill px-3">Items Found</a>
+                    <a href="#" class="btn btn-outline-primary rounded-pill px-3">Success Stories</a>
+                    <a href="#" class="btn btn-outline-primary rounded-pill px-3">Community Members</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Action Cards -->
+<div class="container my-5">
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="card action-card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="action-icon bg-danger bg-opacity-10 text-danger mb-3">
+                        <i class="fas fa-exclamation-circle fa-2x"></i>
+                    </div>
+                    <h4 class="card-title">Report Lost Item</h4>
+                    <p class="card-text text-muted">Can't find something valuable? Report it here so our community can help you find it.</p>
+                    <a th:href="@{/report/lost}" class="btn btn-outline-danger">Login to Report</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card action-card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="action-icon bg-success bg-opacity-10 text-success mb-3">
+                        <i class="fas fa-hand-holding-heart fa-2x"></i>
+                    </div>
+                    <h4 class="card-title">Report Found Item</h4>
+                    <p class="card-text text-muted">Found something that doesn't belong to you? Help reunite it with its owner.</p>
+                    <a th:href="@{/report/found}" class="btn btn-outline-success">Login to Report</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card action-card h-100 border-0 shadow-sm">
+                <div class="card-body text-center p-4">
+                    <div class="action-icon bg-info bg-opacity-10 text-info mb-3">
+                        <i class="fas fa-chart-line fa-2x"></i>
+                    </div>
+                    <h4 class="card-title">View Statistics</h4>
+                    <p class="card-text text-muted">Track recovery rates, popular categories, and community impact.</p>
+                    <a th:href="@{/statistics}" class="btn btn-outline-info">View Statistics</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recently Reported Items -->
+<div class="container my-5">
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h4 class="mb-0">Recently Reported Items</h4>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5 class="d-flex align-items-center gap-2">
+                                <i class="fas fa-question-circle text-warning"></i>
+                                Recently Lost Items
+                            </h5>
+                            <div class="list-group list-group-flush">
+                                <div th:each="item : ${recentLostItems}" class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span th:text="${item.itemName}">Item Name</span>
+                                        <span class="badge bg-warning">Unclaimed</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <a th:href="@{/lost-items}" class="btn btn-link text-decoration-none p-0 mt-2">View Details →</a>
+                        </div>
+
+                        <div class="col-md-6">
+                            <h5 class="d-flex align-items-center gap-2">
+                                <i class="fas fa-check-circle text-success"></i>
+                                Recently Found Items
+                            </h5>
+                            <div class="list-group list-group-flush">
+                                <div th:each="item : ${recentFoundItems}" class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span th:text="${item.itemName}">Item Name</span>
+                                        <span class="badge bg-success">Unclaimed</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <a th:href="@{/found-items}" class="btn btn-link text-decoration-none p-0 mt-2">View All Found Items →</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Statistics -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm">
+                <div class="card-header bg-white">
+                    <h4 class="mb-0">Quick Statistics</h4>
+                </div>
+                <div class="card-body">
+                    <div class="d-grid gap-3">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>Lost Items</span>
+                            <span class="badge bg-danger" th:text="${lostItemsCount}">0</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>Found Items</span>
+                            <span class="badge bg-success" th:text="${foundItemsCount}">0</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>Claimed Items</span>
+                            <span class="badge bg-info" th:text="${claimedItemsCount}">0</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>Community Members</span>
+                            <span class="badge bg-primary" th:text="${communityMembers}">0</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>Recovery Rate</span>
+                            <span class="badge bg-warning" th:text="${recoveryRate + '%'}">0%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Success Stories -->
+<div class="container my-5">
+    <div class="card shadow-sm">
+        <div class="card-header bg-white">
+            <h4 class="mb-0">Recent Success Stories</h4>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div th:each="story : ${successStories}" class="col-md-4 mb-3">
+                    <div class="card border-success h-100">
+                        <div class="card-body">
+                            <h5 class="card-title" th:text="${story[0]}">Item</h5>
+                            <p class="card-text" th:text="${story[1]}">Description</p>
+                            <div class="text-muted">
+                                <i class="fas fa-user"></i>
+                                <span th:text="${story[2]}">User</span>
+                                •
+                                <i class="fas fa-calendar"></i>
+                                <span th:text="${story[3]}">Date</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <a href="#" class="btn btn-link text-decoration-none p-0 mt-2">Read More Stories →</a>
+        </div>
+    </div>
+</div>
+
+<!-- Footer -->
+<footer class="bg-dark text-white py-4 mt-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <h5>UEP Lost & Found Hub</h5>
+                <p class="mb-0">Helping reunite lost items with their owners since 2023.</p>
+            </div>
+            <div class="col-md-6 text-md-end">
+                <p class="mb-0">&copy; 2025 UEP Lost & Found Hub. All rights reserved.</p>
+            </div>
+        </div>
+    </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script th:src="@{/static/js/script.js}"></script>
+</body>
+</html>
