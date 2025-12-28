@@ -1,0 +1,1581 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UEP Lost & Found System</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root {
+            --navy-dark: #0a192f;
+            --navy-medium: #112240;
+            --navy-light: #233554;
+            --teal-primary: #64ffda;
+            --teal-light: #88ffdb;
+            --blue-light: #57cbff;
+            --white: #e6f1ff;
+            --gray-light: #a8b2d1;
+            --danger: #ff6b6b;
+            --success: #51cf66;
+            --warning: #ffd43b;
+            --info: #339af0;
+        }
+
+        body {
+            background: linear-gradient(135deg, var(--navy-dark) 0%, var(--navy-medium) 100%);
+            color: var(--white);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
+
+        .navbar-custom {
+            background: rgba(10, 25, 47, 0.95) !important;
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(100, 255, 218, 0.1);
+        }
+
+        .card-custom {
+            background: rgba(17, 34, 64, 0.9);
+            border: 1px solid rgba(100, 255, 218, 0.1);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .card-custom:hover {
+            transform: translateY(-5px);
+            border-color: var(--teal-primary);
+            box-shadow: 0 15px 35px rgba(100, 255, 218, 0.1);
+        }
+
+        .btn-gradient {
+            background: linear-gradient(135deg, var(--teal-primary) 0%, var(--blue-light) 100%);
+            border: none;
+            color: var(--navy-dark);
+            font-weight: 600;
+            padding: 0.8rem 2rem;
+            border-radius: 50px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(100, 255, 218, 0.3);
+        }
+
+        .btn-gradient:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(100, 255, 218, 0.4);
+        }
+
+        .btn-outline-teal {
+            border: 2px solid var(--teal-primary);
+            color: var(--teal-primary);
+            background: transparent;
+            border-radius: 50px;
+            padding: 0.8rem 2rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-outline-teal:hover {
+            background: var(--teal-primary);
+            color: var(--navy-dark);
+            transform: translateY(-3px);
+        }
+
+        .feature-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.5rem;
+            font-size: 2rem;
+            background: rgba(100, 255, 218, 0.1);
+            border: 2px solid rgba(100, 255, 218, 0.2);
+        }
+
+        .hero-section {
+            background: linear-gradient(rgba(10, 25, 47, 0.9), rgba(10, 25, 47, 0.9)),
+                        url('https://images.unsplash.com/photo-1516321318423-f06f85e504b3?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+            background-size: cover;
+            background-position: center;
+            border-radius: 20px;
+            padding: 4rem 2rem;
+            margin-bottom: 3rem;
+            border: 1px solid rgba(100, 255, 218, 0.2);
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, var(--teal-primary) 0%, var(--blue-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .floating {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--teal-primary) 0%, var(--blue-light) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Login/Register Modal Styles */
+        .auth-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(10, 25, 47, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .auth-modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .auth-container {
+            background: rgba(17, 34, 64, 0.95);
+            border-radius: 20px;
+            border: 1px solid rgba(100, 255, 218, 0.2);
+            width: 90%;
+            max-width: 500px;
+            transform: translateY(20px);
+            transition: transform 0.3s ease;
+        }
+
+        .auth-modal.active .auth-container {
+            transform: translateY(0);
+        }
+
+        .auth-header {
+            background: linear-gradient(135deg, var(--teal-primary) 0%, var(--blue-light) 100%);
+            color: var(--navy-dark);
+            padding: 1.5rem;
+            border-radius: 20px 20px 0 0;
+            text-align: center;
+        }
+
+        .auth-body {
+            padding: 2rem;
+        }
+
+        .auth-tabs {
+            display: flex;
+            border-bottom: 1px solid rgba(100, 255, 218, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 1rem;
+            text-align: center;
+            background: transparent;
+            border: none;
+            color: var(--gray-light);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+            font-weight: 500;
+        }
+
+        .auth-tab.active {
+            color: var(--teal-primary);
+            border-bottom: 3px solid var(--teal-primary);
+        }
+
+        .auth-content {
+            display: none;
+        }
+
+        .auth-content.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        .auth-close {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: transparent;
+            border: none;
+            color: var(--navy-dark);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+
+        .auth-close:hover {
+            transform: scale(1.1);
+        }
+
+        /* About Us Specific Styles */
+        .about-hero {
+            background: linear-gradient(rgba(10, 25, 47, 0.95), rgba(10, 25, 47, 0.9)),
+                        url('https://images.unsplash.com/photo-1562774053-701939374585?ixlib=rb-4.0.3&auto=format&fit=crop&w=1350&q=80');
+            background-size: cover;
+            background-position: center;
+            border-radius: 20px;
+            padding: 5rem 2rem;
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .team-member {
+            text-align: center;
+            padding: 2rem;
+        }
+
+        .team-img {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3px solid var(--teal-primary);
+            margin-bottom: 1.5rem;
+            box-shadow: 0 5px 20px rgba(100, 255, 218, 0.2);
+        }
+
+        .mission-box {
+            background: rgba(100, 255, 218, 0.1);
+            border-left: 4px solid var(--teal-primary);
+            padding: 2rem;
+            border-radius: 10px;
+        }
+
+        .timeline {
+            position: relative;
+            padding-left: 30px;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: var(--teal-primary);
+        }
+
+        .timeline-item {
+            position: relative;
+            margin-bottom: 2rem;
+            padding-left: 30px;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -38px;
+            top: 5px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--teal-primary);
+            border: 3px solid var(--navy-dark);
+        }
+
+        .contact-card {
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .contact-icon {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            color: var(--teal-primary);
+        }
+
+        /* Settings and Notifications Styles */
+        .settings-card {
+            background: rgba(17, 34, 64, 0.9);
+            border-radius: 15px;
+            border: 1px solid rgba(100, 255, 218, 0.1);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .settings-header {
+            background: linear-gradient(135deg, var(--teal-primary) 0%, var(--blue-light) 100%);
+            color: var(--navy-dark);
+            padding: 1.5rem;
+            font-weight: bold;
+        }
+
+        .settings-body {
+            padding: 2rem;
+        }
+
+        .form-check-input:checked {
+            background-color: var(--teal-primary);
+            border-color: var(--teal-primary);
+        }
+
+        .form-check-input:focus {
+            border-color: var(--teal-primary);
+            box-shadow: 0 0 0 0.25rem rgba(100, 255, 218, 0.25);
+        }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 34px;
+        }
+
+        .switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #233554;
+            transition: .4s;
+            border-radius: 34px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background-color: var(--teal-primary);
+        }
+
+        input:focus + .slider {
+            box-shadow: 0 0 1px var(--teal-primary);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(26px);
+        }
+
+        .notification-item {
+            padding: 1rem;
+            border-bottom: 1px solid rgba(100, 255, 218, 0.1);
+            transition: background 0.3s ease;
+        }
+
+        .notification-item:hover {
+            background: rgba(100, 255, 218, 0.05);
+        }
+
+        .notification-item.unread {
+            background: rgba(100, 255, 218, 0.1);
+            border-left: 4px solid var(--teal-primary);
+        }
+
+        .notification-badge {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 10px;
+        }
+
+        .badge-success { background: var(--success); }
+        .badge-danger { background: var(--danger); }
+        .badge-warning { background: var(--warning); }
+        .badge-info { background: var(--info); }
+
+        .tab-content {
+            border: 1px solid rgba(100, 255, 218, 0.1);
+            border-top: none;
+            border-radius: 0 0 10px 10px;
+            padding: 2rem;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .nav-tabs .nav-link {
+            color: var(--gray-light);
+            border: none;
+            padding: 1rem 2rem;
+        }
+
+        .nav-tabs .nav-link.active {
+            color: var(--teal-primary);
+            background: rgba(100, 255, 218, 0.1);
+            border-bottom: 3px solid var(--teal-primary);
+        }
+
+        .nav-tabs .nav-link:hover {
+            color: var(--teal-primary);
+        }
+
+        .settings-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            background: rgba(100, 255, 218, 0.1);
+            border: 2px solid rgba(100, 255, 218, 0.2);
+            color: var(--teal-primary);
+        }
+
+        .category-card {
+            padding: 1.5rem;
+            border-radius: 10px;
+            background: rgba(100, 255, 218, 0.05);
+            border: 1px solid rgba(100, 255, 218, 0.1);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .category-card:hover {
+            background: rgba(100, 255, 218, 0.1);
+            border-color: var(--teal-primary);
+        }
+
+        .category-card.active {
+            background: rgba(100, 255, 218, 0.15);
+            border-color: var(--teal-primary);
+        }
+
+        /* Section Navigation */
+        .section-nav {
+            position: sticky;
+            top: 80px;
+            z-index: 100;
+        }
+
+        .section-nav .nav-link {
+            color: var(--gray-light);
+            border-left: 3px solid transparent;
+            border-radius: 0;
+            padding: 0.75rem 1.5rem;
+        }
+
+        .section-nav .nav-link.active {
+            color: var(--teal-primary);
+            background: rgba(100, 255, 218, 0.1);
+            border-left: 3px solid var(--teal-primary);
+        }
+
+        .section-nav .nav-link:hover {
+            color: var(--teal-primary);
+            background: rgba(100, 255, 218, 0.05);
+        }
+
+        /* Section Content */
+        .section-content {
+            min-height: 100vh;
+            padding-top: 2rem;
+        }
+
+        /* Hide all sections initially */
+        .main-section {
+            display: none;
+        }
+
+        .main-section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Privacy Policy Styles */
+        .policy-section {
+            margin-bottom: 2rem;
+        }
+        
+        .policy-section h4 {
+            color: var(--teal-primary);
+            margin-bottom: 1rem;
+        }
+        
+        .policy-section p {
+            color: var(--gray-light);
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+        
+        .policy-section ul {
+            color: var(--gray-light);
+            padding-left: 1.5rem;
+        }
+        
+        .policy-section li {
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+<!-- Navigation -->
+<nav class="navbar navbar-expand-lg navbar-dark navbar-custom py-3">
+    <div class="container">
+        <a class="navbar-brand d-flex align-items-center" href="#">
+            <div class="rounded-circle bg-gradient d-flex align-items-center justify-content-center me-2"
+                 style="width: 40px; height: 40px; background: linear-gradient(135deg, #64ffda 0%, #57cbff 100%);">
+                <i class="fas fa-search-location text-dark"></i>
+            </div>
+            <span class="fw-bold">UEP Lost & Found Hub</span>
+        </a>
+        <div class="navbar-nav ms-auto">
+            <a href="#" class="btn btn-outline-teal me-2" id="loginBtn">
+                <i class="fas fa-sign-in-alt me-2"></i>Login
+            </a>
+            <a href="#" class="btn-gradient" id="registerBtn">
+                <i class="fas fa-user-plus me-2"></i>Register
+            </a>
+        </div>
+    </div>
+</nav>
+
+<!-- Authentication Modal -->
+<div class="auth-modal" id="authModal">
+    <div class="auth-container">
+        <div class="auth-header">
+            <h3 class="mb-0" id="authTitle">Welcome Back</h3>
+            <button class="auth-close" id="closeAuth">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="auth-body">
+            <div class="auth-tabs">
+                <button class="auth-tab active" data-tab="login">Login</button>
+                <button class="auth-tab" data-tab="register">Register</button>
+            </div>
+            
+            <!-- Login Form -->
+            <div class="auth-content active" id="loginContent">
+                <form id="loginForm">
+                    <div class="mb-3">
+                        <label class="form-label">Student/Faculty ID</label>
+                        <input type="text" class="form-control bg-transparent text-white border-secondary" 
+                               placeholder="Enter your ID" required id="loginId">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Password</label>
+                        <input type="password" class="form-control bg-transparent text-white border-secondary" 
+                               placeholder="Enter your password" required id="loginPassword">
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="rememberMe">
+                        <label class="form-check-label" for="rememberMe">Remember me</label>
+                    </div>
+                    <button type="submit" class="btn-gradient w-100">
+                        <i class="fas fa-sign-in-alt me-2"></i>Login
+                    </button>
+                </form>
+                <div class="text-center mt-3">
+                    <p class="small" style="color: var(--gray-light);">
+                        Don't have an account? 
+                        <a href="#" class="text-teal-primary switch-tab" data-tab="register">Register here</a>
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Register Form -->
+            <div class="auth-content" id="registerContent">
+                <form id="registerForm">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">First Name</label>
+                            <input type="text" class="form-control bg-transparent text-white border-secondary" 
+                                   placeholder="Enter first name" required id="regFirstName">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Last Name</label>
+                            <input type="text" class="form-control bg-transparent text-white border-secondary" 
+                                   placeholder="Enter last name" required id="regLastName">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Student/Faculty ID</label>
+                            <input type="text" class="form-control bg-transparent text-white border-secondary" 
+                                   placeholder="Enter ID" required id="regId">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Email Address</label>
+                            <input type="email" class="form-control bg-transparent text-white border-secondary" 
+                                   placeholder="Enter email" required id="regEmail">
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Password</label>
+                            <input type="password" class="form-control bg-transparent text-white border-secondary" 
+                                   placeholder="Create password" required id="regPassword">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Confirm Password</label>
+                            <input type="password" class="form-control bg-transparent text-white border-secondary" 
+                                   placeholder="Confirm password" required id="regConfirmPassword">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Contact Number</label>
+                        <input type="tel" class="form-control bg-transparent text-white border-secondary" 
+                               placeholder="Enter contact number" id="regPhone">
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="terms" required>
+                        <label class="form-check-label" for="terms">
+                            I agree to the <a href="#" class="text-teal-primary" data-section="settings" data-tab="policy">Terms and Conditions</a>
+                        </label>
+                    </div>
+                    <button type="submit" class="btn-gradient w-100">
+                        <i class="fas fa-user-plus me-2"></i>Create Account
+                    </button>
+                </form>
+                <div class="text-center mt-3">
+                    <p class="small" style="color: var(--gray-light);">
+                        Already have an account? 
+                        <a href="#" class="text-teal-primary switch-tab" data-tab="login">Login here</a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid">
+    <div class="row">
+        <!-- Left Sidebar Navigation -->
+        <div class="col-lg-2">
+            <div class="section-nav mt-4">
+                <div class="card-custom p-3">
+                    <h5 class="mb-3 gradient-text"><i class="fas fa-compass me-2"></i>Navigation</h5>
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link active" href="#" data-section="home">
+                                <i class="fas fa-home me-2"></i>Home
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-section="settings">
+                                <i class="fas fa-cog me-2"></i>Settings
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#" data-section="notifications">
+                                <i class="fas fa-bell me-2"></i>Notifications
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-lg-10">
+            <!-- Home Section -->
+            <section id="home-section" class="main-section active">
+                <div class="hero-section text-center">
+                    <div class="floating mb-4">
+                        <i class="fas fa-search-location fa-4x gradient-text"></i>
+                    </div>
+                    <h1 class="display-4 fw-bold mb-3">Welcome to UEP Lost & Found</h1>
+                    <p class="lead mb-4" style="color: var(--gray-light); max-width: 600px; margin: 0 auto;">
+                        Reconnect with your lost belongings through our secure campus-wide item recovery system
+                    </p>
+                    <div class="d-flex justify-content-center gap-3 mt-4">
+                        <a href="#" class="btn-gradient pulse" id="homeRegisterBtn">
+                            <i class="fas fa-user-plus me-2"></i>Get Started
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Quick Stats -->
+                <div class="row mb-5">
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="card-custom text-center p-3">
+                            <div class="stat-number">500+</div>
+                            <p class="mb-0" style="color: var(--gray-light);">Items Recovered</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="card-custom text-center p-3">
+                            <div class="stat-number">2000+</div>
+                            <p class="mb-0" style="color: var(--gray-light);">Active Users</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="card-custom text-center p-3">
+                            <div class="stat-number">98%</div>
+                            <p class="mb-0" style="color: var(--gray-light);">Success Rate</p>
+                        </div>
+                    </div>
+                    <div class="col-md-3 col-6 mb-3">
+                        <div class="card-custom text-center p-3">
+                            <div class="stat-number">24/7</div>
+                            <p class="mb-0" style="color: var(--gray-light);">Support</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Main Call to Action -->
+                <div class="row mb-5">
+                    <div class="col-md-6 mb-4">
+                        <div class="card-custom h-100 p-4">
+                            <div class="feature-icon">
+                                <i class="fas fa-user-plus text-teal-primary"></i>
+                            </div>
+                            <h3 class="text-center mb-3">New to UEP?</h3>
+                            <p class="text-center mb-4" style="color: var(--gray-light);">
+                                Create an account to report lost items, claim found items, and stay updated with campus notifications
+                            </p>
+                            <div class="text-center">
+                                <a href="#" class="btn-gradient w-100" id="registerBtn2">
+                                    <i class="fas fa-user-plus me-2"></i>Create Account
+                                </a>
+                            </div>
+                            <ul class="mt-4" style="color: var(--gray-light);">
+                                <li class="mb-2"><i class="fas fa-check-circle text-teal-primary me-2"></i>Secure account creation</li>
+                                <li class="mb-2"><i class="fas fa-check-circle text-teal-primary me-2"></i>Instant item reporting</li>
+                                <li class="mb-2"><i class="fas fa-check-circle text-teal-primary me-2"></i>Real-time notifications</li>
+                                <li><i class="fas fa-check-circle text-teal-primary me-2"></i>24/7 access to dashboard</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-4">
+                        <div class="card-custom h-100 p-4">
+                            <div class="feature-icon">
+                                <i class="fas fa-sign-in-alt text-teal-primary"></i>
+                            </div>
+                            <h3 class="text-center mb-3">Already Registered?</h3>
+                            <p class="text-center mb-4" style="color: var(--gray-light);">
+                                Access your personalized dashboard to manage reports, track items, and receive campus alerts
+                            </p>
+                            <div class="text-center">
+                                <a href="#" class="btn-gradient w-100" id="loginBtn2">
+                                    <i class="fas fa-sign-in-alt me-2"></i>Login to Dashboard
+                                </a>
+                            </div>
+                            <ul class="mt-4" style="color: var(--gray-light);">
+                                <li class="mb-2"><i class="fas fa-check-circle text-teal-primary me-2"></i>View your activity history</li>
+                                <li class="mb-2"><i class="fas fa-check-circle text-teal-primary me-2"></i>Manage notifications</li>
+                                <li class="mb-2"><i class="fas fa-check-circle text-teal-primary me-2"></i>Track item status</li>
+                                <li><i class="fas fa-check-circle text-teal-primary me-2"></i>Update profile settings</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Settings Section -->
+            <section id="settings-section" class="main-section">
+                <div class="settings-card">
+                    <div class="settings-header">
+                        <h1 class="mb-0"><i class="fas fa-cog me-2"></i>Settings</h1>
+                        <p class="mb-0 mt-2">Manage your account preferences and system settings</p>
+                    </div>
+                    <div class="settings-body">
+                        <ul class="nav nav-tabs" id="settingsTab" role="tablist">
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link active" id="profile-tab" data-bs-toggle="tab" data-bs-target="#profile" type="button" role="tab">
+                                    <i class="fas fa-user me-2"></i>Profile
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="about-tab" data-bs-toggle="tab" data-bs-target="#about" type="button" role="tab">
+                                    <i class="fas fa-info-circle me-2"></i>About Us
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="policy-tab" data-bs-toggle="tab" data-bs-target="#policy" type="button" role="tab">
+                                    <i class="fas fa-file-contract me-2"></i>Privacy Policy
+                                </button>
+                            </li>
+                            <li class="nav-item" role="presentation">
+                                <button class="nav-link" id="how-it-works-tab" data-bs-toggle="tab" data-bs-target="#how-it-works" type="button" role="tab">
+                                    <i class="fas fa-question-circle me-2"></i>How It Works
+                                </button>
+                            </li>
+                        </ul>
+                        
+                        <div class="tab-content" id="settingsTabContent">
+                            <!-- Profile Tab -->
+                            <div class="tab-pane fade show active" id="profile" role="tabpanel">
+                                <div class="row">
+                                    <div class="col-md-4 text-center mb-4">
+                                        <div class="settings-icon mx-auto mb-3">
+                                            <i class="fas fa-user-circle"></i>
+                                        </div>
+                                        <h5>Account Information</h5>
+                                        <p class="small" style="color: var(--gray-light);">Update your personal details</p>
+                                    </div>
+                                    <div class="col-md-8">
+                                        <form id="profileForm">
+                                            <div class="row mb-3">
+                                                <div class="col-md-6">
+                                                    <label class="form-label">First Name</label>
+                                                    <input type="text" class="form-control bg-transparent text-white border-secondary" value="Juan" required>
+                                                </div>
+                                                <div class="col-md-6">
+                                                    <label class="form-label">Last Name</label>
+                                                    <input type="text" class="form-control bg-transparent text-white border-secondary" value="Dela Cruz" required>
+                                                </div>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Email Address</label>
+                                                <input type="email" class="form-control bg-transparent text-white border-secondary" value="juan.delacruz@uep.edu.ph" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Student/Faculty ID</label>
+                                                <input type="text" class="form-control bg-transparent text-white border-secondary" value="2024-00123" required>
+                                            </div>
+                                            <div class="mb-3">
+                                                <label class="form-label">Contact Number</label>
+                                                <input type="tel" class="form-control bg-transparent text-white border-secondary" value="0917-123-4567" required>
+                                            </div>
+                                            <button type="submit" class="btn-gradient">
+                                                <i class="fas fa-save me-2"></i>Update Profile
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- About Us Tab -->
+                            <div class="tab-pane fade" id="about" role="tabpanel">
+                                <div class="about-content">
+                                    <h3 class="gradient-text mb-4"><i class="fas fa-info-circle me-2"></i>About UEP Lost & Found</h3>
+                                    
+                                    <div class="mission-box mb-4">
+                                        <h4><i class="fas fa-bullseye text-teal-primary me-2"></i>Our Mission</h4>
+                                        <p style="color: var(--gray-light);">
+                                            To provide a secure, efficient, and user-friendly platform that reunites lost items with their 
+                                            owners while fostering a culture of honesty and community support within the UEP campus.
+                                        </p>
+                                    </div>
+
+                                    <div class="mission-box mb-4">
+                                        <h4><i class="fas fa-eye text-teal-primary me-2"></i>Our Vision</h4>
+                                        <p style="color: var(--gray-light);">
+                                            To become the most trusted and effective lost and found service in Philippine universities, 
+                                            setting the standard for campus community support systems and technological innovation.
+                                        </p>
+                                    </div>
+
+                                    <div class="card-custom p-4 mb-4">
+                                        <h4><i class="fas fa-book-open text-teal-primary me-2"></i>Our Story</h4>
+                                        <p style="color: var(--gray-light);" class="mb-3">
+                                            The UEP Lost & Found System was born out of a simple observation in 2022: countless valuable items 
+                                            were being lost on campus with no efficient way to return them to their owners. What started as 
+                                            a student-led initiative has grown into the official university-wide platform for item recovery.
+                                        </p>
+                                        <p style="color: var(--gray-light);">
+                                            Today, we serve over 5,000 students, faculty, and staff members, leveraging technology to create 
+                                            a community where lost items find their way home. Our platform combines artificial intelligence 
+                                            with human verification to ensure maximum recovery rates while maintaining privacy and security.
+                                        </p>
+                                    </div>
+
+                                    <h4 class="gradient-text mb-3"><i class="fas fa-users me-2"></i>Meet Our Team</h4>
+                                    <div class="row">
+                                        <div class="col-md-3 mb-3">
+                                            <div class="team-member">
+                                                <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="Dr. Maria Santos" class="team-img">
+                                                <h6>Dr. Maria Santos</h6>
+                                                <p class="small" style="color: var(--teal-primary);">Project Director</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <div class="team-member">
+                                                <img src="https://randomuser.me/api/portraits/women/44.jpg" alt="Juan Dela Cruz" class="team-img">
+                                                <h6>Juan Dela Cruz</h6>
+                                                <p class="small" style="color: var(--teal-primary);">Lead Developer</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <div class="team-member">
+                                                <img src="https://randomuser.me/api/portraits/men/67.jpg" alt="Robert Lim" class="team-img">
+                                                <h6>Robert Lim</h6>
+                                                <p class="small" style="color: var(--teal-primary);">Operations Manager</p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-3 mb-3">
+                                            <div class="team-member">
+                                                <img src="https://randomuser.me/api/portraits/women/68.jpg" alt="Sarah Johnson" class="team-img">
+                                                <h6>Sarah Johnson</h6>
+                                                <p class="small" style="color: var(--teal-primary);">Student Coordinator</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Privacy Policy Tab -->
+                            <div class="tab-pane fade" id="policy" role="tabpanel">
+                                <div class="policy-content">
+                                    <h3 class="gradient-text mb-4"><i class="fas fa-file-contract me-2"></i>Privacy Policy</h3>
+                                    
+                                    <div class="policy-section">
+                                        <h4>1. Information We Collect</h4>
+                                        <p>We collect the following types of information:</p>
+                                        <ul>
+                                            <li><strong>Personal Information:</strong> Name, student/faculty ID, email address, contact number</li>
+                                            <li><strong>Lost Item Information:</strong> Descriptions, photos, locations where items were lost</li>
+                                            <li><strong>Found Item Information:</strong> Descriptions, photos, locations where items were found</li>
+                                            <li><strong>Usage Data:</strong> How you interact with our system, login times, features used</li>
+                                        </ul>
+                                    </div>
+
+                                    <div class="policy-section">
+                                        <h4>2. How We Use Your Information</h4>
+                                        <p>Your information is used for the following purposes:</p>
+                                        <ul>
+                                            <li>To match lost items with found items</li>
+                                            <li>To notify you when your lost items are found</li>
+                                            <li>To verify your identity when claiming items</li>
+                                            <li>To improve our system and services</li>
+                                            <li>To send important updates and notifications</li>
+                                        </ul>
+                                    </div>
+
+                                    <div class="policy-section">
+                                        <h4>3. Data Security</h4>
+                                        <p>We implement industry-standard security measures to protect your data:</p>
+                                        <ul>
+                                            <li>Encryption of sensitive data</li>
+                                            <li>Secure server infrastructure</li>
+                                            <li>Regular security audits</li>
+                                            <li>Access controls and authentication</li>
+                                        </ul>
+                                    </div>
+
+                                    <div class="policy-section">
+                                        <h4>4. Data Retention</h4>
+                                        <p>We retain your data for as long as necessary:</p>
+                                        <ul>
+                                            <li>Active account data: Until account deletion</li>
+                                            <li>Lost/found item records: 1 year after resolution</li>
+                                            <li>System logs: 6 months</li>
+                                            <li>Analytics data: 2 years (anonymized)</li>
+                                        </ul>
+                                    </div>
+
+                                    <div class="policy-section">
+                                        <h4>5. Your Rights</h4>
+                                        <p>You have the right to:</p>
+                                        <ul>
+                                            <li>Access your personal data</li>
+                                            <li>Correct inaccurate data</li>
+                                            <li>Request data deletion</li>
+                                            <li>Export your data</li>
+                                            <li>Opt-out of data collection</li>
+                                        </ul>
+                                    </div>
+
+                                    <div class="policy-section">
+                                        <h4>6. Contact Information</h4>
+                                        <p>For privacy-related concerns, contact:</p>
+                                        <p style="color: var(--teal-primary);">
+                                            <i class="fas fa-envelope me-2"></i>privacy@uep-lostfound.edu.ph<br>
+                                            <i class="fas fa-phone me-2"></i>(02) 1234-5678
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- How It Works Tab -->
+                            <div class="tab-pane fade" id="how-it-works" role="tabpanel">
+                                <div class="how-it-works-content">
+                                    <h3 class="gradient-text mb-4"><i class="fas fa-question-circle me-2"></i>How It Works</h3>
+                                    
+                                    <div class="row mb-4">
+                                        <div class="col-md-4 mb-3">
+                                            <div class="card-custom p-3 text-center h-100">
+                                                <div class="stat-number mb-3">1</div>
+                                                <h5>Report Lost Item</h5>
+                                                <p style="color: var(--gray-light);">
+                                                    Log in and provide details about your lost item with photos and location
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <div class="card-custom p-3 text-center h-100">
+                                                <div class="stat-number mb-3">2</div>
+                                                <h5>System Matching</h5>
+                                                <p style="color: var(--gray-light);">
+                                                    Our AI system scans the database for matching found items
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <div class="card-custom p-3 text-center h-100">
+                                                <div class="stat-number mb-3">3</div>
+                                                <h5>Notification</h5>
+                                                <p style="color: var(--gray-light);">
+                                                    You receive a notification when a potential match is found
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="row mb-4">
+                                        <div class="col-md-4 mb-3">
+                                            <div class="card-custom p-3 text-center h-100">
+                                                <div class="stat-number mb-3">4</div>
+                                                <h5>Verification</h5>
+                                                <p style="color: var(--gray-light);">
+                                                    Verify ownership through our multi-step verification process
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <div class="card-custom p-3 text-center h-100">
+                                                <div class="stat-number mb-3">5</div>
+                                                <h5>Schedule Pickup</h5>
+                                                <p style="color: var(--gray-light);">
+                                                    Arrange a convenient time to pick up your item at designated locations
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4 mb-3">
+                                            <div class="card-custom p-3 text-center h-100">
+                                                <div class="stat-number mb-3">6</div>
+                                                <h5>Item Recovery</h5>
+                                                <p style="color: var(--gray-light);">
+                                                    Collect your item with proper identification and verification
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="card-custom p-4">
+                                        <h5 class="gradient-text mb-3"><i class="fas fa-lightbulb me-2"></i>Tips for Success</h5>
+                                        <ul style="color: var(--gray-light);">
+                                            <li class="mb-2">Provide detailed descriptions and clear photos of lost items</li>
+                                            <li class="mb-2">Report items as soon as possible after losing them</li>
+                                            <li class="mb-2">Check notifications regularly for updates</li>
+                                            <li class="mb-2">Keep your contact information up to date</li>
+                                            <li>Be honest and provide accurate information when claiming items</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Notifications Section -->
+            <section id="notifications-section" class="main-section">
+                <div class="settings-card">
+                    <div class="settings-header">
+                        <h1 class="mb-0"><i class="fas fa-bell me-2"></i>Notifications</h1>
+                        <p class="mb-0 mt-2">Stay updated with your lost and found activities</p>
+                    </div>
+                    <div class="settings-body">
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <h5><i class="fas fa-filter me-2"></i>Filter by Type</h5>
+                                <div class="d-flex flex-wrap gap-2 mb-3">
+                                    <button class="badge bg-success p-2 border-0 filter-btn" data-filter="all">All</button>
+                                    <button class="badge bg-info p-2 border-0 filter-btn" data-filter="matches">Matches</button>
+                                    <button class="badge bg-warning p-2 border-0 filter-btn" data-filter="alerts">Alerts</button>
+                                    <button class="badge bg-danger p-2 border-0 filter-btn" data-filter="updates">Updates</button>
+                                </div>
+                            </div>
+                            <div class="col-md-6 text-end">
+                                <button class="btn-outline-teal btn-sm" id="markAllReadBtn">
+                                    <i class="fas fa-check-double me-2"></i>Mark All as Read
+                                </button>
+                                <button class="btn-outline-teal btn-sm ms-2" id="clearAllBtn">
+                                    <i class="fas fa-trash me-2"></i>Clear All
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <div class="notification-list" id="notificationList">
+                            <!-- Notifications will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Section Management
+        const sections = document.querySelectorAll('.main-section');
+        const navLinks = document.querySelectorAll('.section-nav .nav-link');
+        const authModal = document.getElementById('authModal');
+        
+        // Initialize notifications
+        initializeNotifications();
+        
+        // Navigation click handlers
+        navLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const targetSection = this.getAttribute('data-section');
+                showSection(targetSection);
+                updateActiveNav(this);
+            });
+        });
+        
+        // Authentication buttons - ALL buttons open the auth modal
+        const authButtons = [
+            'loginBtn', 'loginBtn2', 
+            'registerBtn', 'registerBtn2', 
+            'homeRegisterBtn'
+        ];
+        
+        authButtons.forEach(id => {
+            const btn = document.getElementById(id);
+            if (btn) {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    // Determine which tab to show based on button ID
+                    let tabToShow = 'login';
+                    if (id.includes('register') || id === 'homeRegisterBtn') {
+                        tabToShow = 'register';
+                    }
+                    
+                    // Show auth modal with appropriate tab
+                    showAuthModal(tabToShow);
+                });
+            }
+        });
+        
+        // Close auth modal
+        document.getElementById('closeAuth')?.addEventListener('click', function() {
+            hideAuthModal();
+        });
+        
+        // Close modal when clicking outside
+        authModal.addEventListener('click', function(e) {
+            if (e.target === authModal) {
+                hideAuthModal();
+            }
+        });
+        
+        // Auth tab switching
+        document.querySelectorAll('.auth-tab, .switch-tab').forEach(tab => {
+            tab.addEventListener('click', function(e) {
+                e.preventDefault();
+                const tabName = this.getAttribute('data-tab');
+                switchAuthTab(tabName);
+            });
+        });
+        
+        // Login form submission
+        document.getElementById('loginForm')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const userId = document.getElementById('loginId').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            if (!userId || !password) {
+                showToast('Please fill in all fields', 'error');
+                return;
+            }
+            
+            // Simulate login
+            showToast('Login successful! Welcome to UEP Lost & Found');
+            hideAuthModal();
+            
+            // Clear form
+            this.reset();
+        });
+        
+        // Register form submission
+        document.getElementById('registerForm')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const firstName = document.getElementById('regFirstName').value;
+            const lastName = document.getElementById('regLastName').value;
+            const userId = document.getElementById('regId').value;
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            const confirmPassword = document.getElementById('regConfirmPassword').value;
+            
+            // Validation
+            if (!firstName || !lastName || !userId || !email || !password || !confirmPassword) {
+                showToast('Please fill in all required fields', 'error');
+                return;
+            }
+            
+            if (password !== confirmPassword) {
+                showToast('Passwords do not match', 'error');
+                return;
+            }
+            
+            if (password.length < 6) {
+                showToast('Password must be at least 6 characters', 'error');
+                return;
+            }
+            
+            // Simulate registration
+            const userData = {
+                firstName,
+                lastName,
+                userId,
+                email,
+                password,
+                phone: document.getElementById('regPhone').value || ''
+            };
+            
+            // Save to localStorage (simulating database)
+            localStorage.setItem('uep_user', JSON.stringify(userData));
+            
+            showToast(`Account created successfully! Welcome ${firstName} ${lastName}`);
+            hideAuthModal();
+            
+            // Switch to login tab for next time
+            switchAuthTab('login');
+            
+            // Clear form
+            this.reset();
+        });
+        
+        // Terms and Conditions link in register form
+        document.querySelector('a[data-section="settings"][data-tab="policy"]')?.addEventListener('click', function(e) {
+            e.preventDefault();
+            hideAuthModal();
+            showSection('settings');
+            // Switch to Privacy Policy tab
+            setTimeout(() => {
+                document.getElementById('policy-tab').click();
+            }, 100);
+        });
+        
+        // Settings Tabs Management
+        const settingsTabs = document.querySelectorAll('#settingsTab button');
+        settingsTabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                const target = this.getAttribute('data-bs-target');
+                settingsTabs.forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-pane').forEach(pane => {
+                    pane.classList.remove('show', 'active');
+                });
+                this.classList.add('active');
+                document.querySelector(target).classList.add('show', 'active');
+            });
+        });
+        
+        // Profile Form Submission
+        document.getElementById('profileForm')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            showToast('Profile updated successfully!');
+        });
+        
+        // Initialize
+        showSection('home');
+        
+        // Functions
+        function showSection(sectionId) {
+            sections.forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(`${sectionId}-section`)?.classList.add('active');
+        }
+        
+        function updateActiveNav(activeLink) {
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+            });
+            activeLink.classList.add('active');
+        }
+        
+        function showAuthModal(defaultTab = 'login') {
+            authModal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            switchAuthTab(defaultTab);
+            
+            // Update title based on tab
+            document.getElementById('authTitle').textContent = 
+                defaultTab === 'login' ? 'Welcome Back' : 'Create Account';
+        }
+        
+        function hideAuthModal() {
+            authModal.classList.remove('active');
+            document.body.style.overflow = 'auto';
+        }
+        
+        function switchAuthTab(tabName) {
+            // Update tabs
+            document.querySelectorAll('.auth-tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.getAttribute('data-tab') === tabName) {
+                    tab.classList.add('active');
+                }
+            });
+            
+            // Update content
+            document.querySelectorAll('.auth-content').forEach(content => {
+                content.classList.remove('active');
+                if (content.id === `${tabName}Content`) {
+                    content.classList.add('active');
+                }
+            });
+            
+            // Update title
+            document.getElementById('authTitle').textContent = 
+                tabName === 'login' ? 'Welcome Back' : 'Create Account';
+        }
+        
+        function initializeNotifications() {
+            const notifications = [
+                {
+                    id: 1,
+                    type: 'success',
+                    title: 'Item Matched!',
+                    message: 'Your lost "Black Wireless Headphones" has been found at the Library',
+                    time: '2 hours ago',
+                    unread: true
+                },
+                {
+                    id: 2,
+                    type: 'info',
+                    title: 'New Similar Item',
+                    message: 'A "Blue Water Bottle" matching your description was reported at the Cafeteria',
+                    time: '1 day ago',
+                    unread: true
+                },
+                {
+                    id: 3,
+                    type: 'warning',
+                    title: 'Verification Required',
+                    message: 'Please verify your identity to claim the found laptop',
+                    time: '3 days ago',
+                    unread: false
+                },
+                {
+                    id: 4,
+                    type: 'danger',
+                    title: 'System Maintenance',
+                    message: 'Scheduled maintenance on Saturday, 2:00 AM - 4:00 AM',
+                    time: '1 week ago',
+                    unread: false
+                },
+                {
+                    id: 5,
+                    type: 'info',
+                    title: 'Profile Updated',
+                    message: 'Your contact information has been successfully updated',
+                    time: '2 weeks ago',
+                    unread: false
+                }
+            ];
+            
+            const notificationList = document.getElementById('notificationList');
+            notificationList.innerHTML = notifications.map(notif => `
+                <div class="notification-item ${notif.unread ? 'unread' : ''}" data-type="${notif.type}" data-id="${notif.id}">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            ${notif.unread ? `<span class="notification-badge badge-${notif.type}"></span>` : ''}
+                            <strong>${notif.title}</strong>
+                            <p class="mb-0 small" style="color: var(--gray-light);">${notif.message}</p>
+                        </div>
+                        <span class="small" style="color: var(--gray-light);">${notif.time}</span>
+                    </div>
+                </div>
+            `).join('');
+            
+            // Add click handlers to notifications
+            document.querySelectorAll('.notification-item').forEach(item => {
+                item.addEventListener('click', function() {
+                    if (this.classList.contains('unread')) {
+                        this.classList.remove('unread');
+                        const badge = this.querySelector('.notification-badge');
+                        if (badge) badge.remove();
+                        updateNotificationCount();
+                    }
+                });
+            });
+        }
+        
+        // Notification Actions
+        document.getElementById('markAllReadBtn')?.addEventListener('click', function() {
+            document.querySelectorAll('.notification-item.unread').forEach(item => {
+                item.classList.remove('unread');
+                const badge = item.querySelector('.notification-badge');
+                if (badge) badge.remove();
+            });
+            updateNotificationCount();
+            showToast('All notifications marked as read');
+        });
+        
+        document.getElementById('clearAllBtn')?.addEventListener('click', function() {
+            if (confirm('Clear all notifications?')) {
+                document.getElementById('notificationList').innerHTML = 
+                    '<div class="text-center py-5"><i class="fas fa-bell-slash fa-3x mb-3" style="color: var(--gray-light);"></i><p style="color: var(--gray-light);">No notifications</p></div>';
+                updateNotificationCount();
+                showToast('All notifications cleared');
+            }
+        });
+        
+        // Notification Filter
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const filter = this.getAttribute('data-filter');
+                filterNotifications(filter);
+                document.querySelectorAll('.filter-btn').forEach(b => {
+                    b.classList.remove('bg-teal', 'text-dark');
+                    b.classList.add('border-0');
+                });
+                this.classList.add('bg-teal', 'text-dark');
+            });
+        });
+        
+        function filterNotifications(filter) {
+            document.querySelectorAll('.notification-item').forEach(item => {
+                if (filter === 'all' || item.getAttribute('data-type') === filter) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+        
+        function updateNotificationCount() {
+            const unreadCount = document.querySelectorAll('.notification-item.unread').length;
+            const notificationNav = document.querySelector('.nav-link[data-section="notifications"]');
+            
+            if (notificationNav) {
+                let badge = notificationNav.querySelector('.badge');
+                if (unreadCount > 0) {
+                    if (!badge) {
+                        badge = document.createElement('span');
+                        badge.className = 'badge bg-danger ms-1';
+                        badge.style.fontSize = '0.7rem';
+                        badge.style.padding = '0.2rem 0.4rem';
+                        notificationNav.appendChild(badge);
+                    }
+                    badge.textContent = unreadCount;
+                } else if (badge) {
+                    badge.remove();
+                }
+            }
+        }
+        
+        function showToast(message, type = 'success') {
+            // Remove existing toast
+            const existingToast = document.querySelector('.custom-toast');
+            if (existingToast) existingToast.remove();
+            
+            // Create toast
+            const toast = document.createElement('div');
+            toast.className = 'custom-toast';
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background: ${type === 'error' ? 'var(--danger)' : 'var(--navy-medium)'};
+                border: 1px solid ${type === 'error' ? 'var(--danger)' : 'var(--teal-primary)'};
+                color: var(--white);
+                padding: 1rem 1.5rem;
+                border-radius: 10px;
+                z-index: 9999;
+                box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+                animation: slideIn 0.3s ease;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                max-width: 300px;
+            `;
+            
+            const icon = document.createElement('i');
+            icon.className = type === 'error' ? 'fas fa-exclamation-circle' : 'fas fa-check-circle';
+            icon.style.color = type === 'error' ? 'var(--white)' : 'var(--teal-primary)';
+            
+            const messageSpan = document.createElement('span');
+            messageSpan.textContent = message;
+            
+            toast.appendChild(icon);
+            toast.appendChild(messageSpan);
+            document.body.appendChild(toast);
+            
+            // Auto remove
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+        
+        // Add CSS for animations
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes slideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes slideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+            .bg-teal {
+                background-color: var(--teal-primary) !important;
+            }
+        `;
+        document.head.appendChild(style);
+        
+        // Initial notification count
+        updateNotificationCount();
+        
+        // Check if user is already registered
+        const savedUser = localStorage.getItem('uep_user');
+        if (savedUser) {
+            const user = JSON.parse(savedUser);
+            // Pre-fill profile form with saved data
+            document.querySelector('#profileForm input[type="text"]:nth-child(1)').value = user.firstName || 'Juan';
+            document.querySelector('#profileForm input[type="text"]:nth-child(2)').value = user.lastName || 'Dela Cruz';
+            document.querySelector('#profileForm input[type="email"]').value = user.email || 'juan.delacruz@uep.edu.ph';
+            document.querySelector('#profileForm input[type="text"]:nth-child(4)').value = user.userId || '2024-00123';
+            document.querySelector('#profileForm input[type="tel"]').value = user.phone || '0917-123-4567';
+        }
+    });
+</script>
+</body>
+</html>
